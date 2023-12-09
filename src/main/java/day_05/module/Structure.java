@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Structure {
 
-    private List<StructurePart> subParts = new ArrayList<>();
+    private final List<StructurePart> subParts = new ArrayList<>();
 
     public Structure() {}
 
@@ -22,10 +22,7 @@ public class Structure {
         return source;
     }
 
-    @Override
-    public String toString() {
-        return "Structure{" +
-                "subParts=" + subParts +
-                '}';
+    public List<StructurePart> getSubParts() {
+        return subParts;
     }
 }

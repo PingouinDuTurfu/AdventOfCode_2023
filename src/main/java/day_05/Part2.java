@@ -1,15 +1,13 @@
 package day_05;
 
 import common.ReadFile;
+import day_05.module.Seed;
 import day_05.module.Structure;
 import day_05.module.StructurePart;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Part2 {
 
@@ -44,7 +42,12 @@ public class Part2 {
         }
 
         String current_category = "";
-        List<Double> seeds = Arrays.stream(input[0].split(":")[1].split(" ")).filter(s -> !s.isEmpty()).map(Double::parseDouble).toList();
+        List<Double> seedsValues = Arrays.stream(input[0].split(":")[1].split(" ")).filter(s -> !s.isEmpty()).map(Double::parseDouble).toList();
+        List<Seed> seeds = new ArrayList<>();
+        for (int i = 0; i < seedsValues.size(); i+=2) {
+            seeds.add(new Seed(seedsValues.get(i), seedsValues.get(i) + seedsValues.get(i + 1)));
+        }
+
         for (int i = 1; i < input.length; i++) {
             if(input[i].isEmpty())
                 continue;
@@ -56,26 +59,51 @@ public class Part2 {
             String[] split = line.split(" ");
             double destination_start = Double.parseDouble(split[0]);
             double source_start = Double.parseDouble(split[1]);
-            double range = Double.parseDouble(split[2]);
-            CATEGORIES_MAP.get(current_category).addPart(new StructurePart(source_start, source_start + range - 1, destination_start, range));
+            double range = Double.parseDouble(split[2]) - 1;
+            CATEGORIES_MAP.get(current_category).addPart(new StructurePart(source_start, source_start + range, destination_start, range));
         }
 
-        List<String> results = new ArrayList<>();
-        double start = 0;
-        for (int i = 0; i < seeds.size(); i++) {
-            System.out.println(i);
-            if(i % 2 == 0) {
-                start = seeds.get(i);
-            } else {
-                for (double j = start; j < start + seeds.get(i); j++) {
-                    double result = j;
-                    for (String cat : CATEGORIES_LIST) {
-                        result = CATEGORIES_MAP.get(cat).getValues(result);
-                    }
-                    results.add(BigDecimal.valueOf(result).toPlainString());
+        for (String category : CATEGORIES_LIST) {
+            seeds = seedCircle(seeds, category);
+        }
+
+        seeds.sort(Comparator.comparingDouble(Seed::getStart));
+        System.out.println(BigDecimal.valueOf(seeds.get(0).getStart()).toPlainString());
+    }
+
+    private static List<Seed> seedCircle(List<Seed> seeds, String category) {
+        List<Seed> results_seeds = new ArrayList<>();
+        for (Seed seed : seeds) {
+            List<Seed> seeds_remaining = new ArrayList<>(){{
+                add(seed);
+            }};
+            for (StructurePart structurePart : CATEGORIES_MAP.get(category).getSubParts()) {
+                double seed_start = seed.getStart();
+                double seed_end = seed.getEnd();
+                double source_start = structurePart.getSource_start();
+                double source_end = structurePart.getSource_end();
+                double destination_start = structurePart.getDestination_start();
+                double delta = destination_start - source_start;
+
+                if(source_start <= seed_start && seed_end <= source_end) {
+                    results_seeds.add(new Seed(seed_start + delta, seed_end + delta));
+                    seeds_remaining.remove(seed);
+                }
+                if(seed_start < source_start && source_end <= seed_end && source_start < source_end) {
+                    results_seeds.add(new Seed(source_start + delta, source_end + delta));
+                    seeds_remaining.remove(seed);
+                }
+                if(source_start < seed_start && source_end  <= seed_end && seed_start < source_end) {
+                    results_seeds.add(new Seed(seed_start + delta, source_end + delta));
+                    seeds_remaining.remove(seed);
+                }
+                if(seed_start < source_start && seed_end <= source_end && source_start < seed_end) {
+                    results_seeds.add(new Seed(source_start + delta, seed_end + delta));
+                    seeds_remaining.remove(seed);
                 }
             }
+            results_seeds.addAll(seeds_remaining);
         }
-        System.out.println(results.stream().min(String::compareTo).get());
+        return results_seeds;
     }
 }
