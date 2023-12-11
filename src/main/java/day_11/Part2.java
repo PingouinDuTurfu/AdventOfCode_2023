@@ -14,7 +14,6 @@ public class Part2 {
     public static void main(String[] args) {
         String[] input;
         try {
-//            input = ReadFile.read("tmp.txt");
             input = ReadFile.read("day_11.txt");
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -68,7 +67,10 @@ public class Part2 {
                                 int finalK = k;
                                 int finalL = l;
                                 int finalJ = j;
-                                result += Math.abs(k - i) + Math.abs(l - j) + row_expansion.stream().filter(x -> (x < finalK && x >= finalI) || (x >= finalK && x < finalI)).count() * EXPANSION + column_expansion.stream().filter(x -> (x < finalL && x >= finalJ) || (x >= finalL && x < finalJ)).count() * EXPANSION;
+                                result += Math.abs(k - i) +
+                                        Math.abs(l - j) +
+                                        row_expansion.stream().filter(x -> (x < finalK && x >= finalI) || (x >= finalK && x < finalI)).count() * EXPANSION +
+                                        column_expansion.stream().filter(x -> (x < finalL && x >= finalJ) || (x >= finalL && x < finalJ)).count() * EXPANSION;
                             }
                         }
                     }

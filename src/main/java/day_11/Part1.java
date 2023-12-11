@@ -4,7 +4,6 @@ import common.ReadFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Part1 {
@@ -12,7 +11,6 @@ public class Part1 {
     public static void main(String[] args) {
         String[] input;
         try {
-//            input = ReadFile.read("tmp.txt");
             input = ReadFile.read("day_11.txt");
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -66,7 +64,10 @@ public class Part1 {
                                 int finalK = k;
                                 int finalL = l;
                                 int finalJ = j;
-                                result += (int) (Math.abs(k - i) + Math.abs(l - j) + row_expansion.stream().filter(x -> (x < finalK && x >= finalI) || (x >= finalK && x < finalI)).count() + column_expansion.stream().filter(x -> (x < finalL && x >= finalJ) || (x >= finalL && x < finalJ)).count());
+                                result += (int) (Math.abs(k - i) +
+                                        Math.abs(l - j) +
+                                        row_expansion.stream().filter(x -> (x < finalK && x >= finalI) || (x >= finalK && x < finalI)).count() +
+                                        column_expansion.stream().filter(x -> (x < finalL && x >= finalJ) || (x >= finalL && x < finalJ)).count());
                             }
                         }
                     }
@@ -76,11 +77,5 @@ public class Part1 {
 
         System.out.println(result);
 
-    }
-
-    private static void print_grid(Character[][] grid) {
-        for (Character[] row : grid) {
-            System.out.println(Arrays.toString(row));
-        }
     }
 }
