@@ -39,3 +39,5 @@ build/
 .DS_Store
 /.idea/
 /.idea/
+/src/main/java/_2015/
+/src/main/resources/_2015/
