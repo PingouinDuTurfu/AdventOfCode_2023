@@ -56,32 +56,151 @@ public class Part2 {
         for (Map.Entry<String, WorkflowPart> entry: workflows.entrySet()) {
             List<RangeData> rangeDataList = new ArrayList<>();
             RangeData rangeDataStart = new RangeData(1, 4000, 1, 4000, 1, 4000, 1, 4000, entry.getKey());
-            RangeData rangeData = rangeDataList.get(0);
-            for (WorkflowRule workflowRule: entry.getValue().rules()) {
-                switch (workflowRule.key()) {
-                    case 'x':
-                        if(workflowRule.operator() == '>')
-                            switch (workflowRule.output()) {
-                                case "A":
-                                    result += Math.max(0, Math.max(0, rangeData.x_max() - workflowRule.value() + 1) - rangeData.m_max() + rangeData.a_max() + rangeData.s_max();
-                                    break;
-                                case "R":
-                                    rangeData1.setX_max(workflowRule.value() - 1);
-                                    break;
-                                default:
-                                    rangeData1.setX_min(workflowRule.value() + 1);
-                                    rangeData1.setX_max(workflowRule.value() - 1);
-                                    break;
-                            }
-                            if(workflowRule.output().equals("A") || workflowRule.equals("R"))
+            rangeDataList.add(rangeDataStart);
 
-                            else
-                                rangeData.add(new RangeData(workflowRule.value() + 1, rangeData1.x_max(), rangeData1.m_min(), rangeData1.m_max(), rangeData1.a_min(), rangeData1.a_max(), rangeData1.s_min(), rangeData1.s_max(), workflowRule.output()));
-                        else
-                            rangeData.add(new RangeData(rangeData1.x_min(), workflowRule.value() - 1, rangeData1.m_min(), rangeData1.m_max(), rangeData1.a_min(), rangeData1.a_max(), rangeData1.s_min(), rangeData1.s_max(), workflowRule.output()));
-                        break;
+            while (!rangeDataList.isEmpty()) {
+                RangeData rangeData = rangeDataList.get(0);
+                rangeDataList.remove(0);
+                String workflow_key = rangeData.next_workflow();
+                WorkflowPart workflow = workflows.get(workflow_key);
+                for (WorkflowRule workflowRule: workflow.rules()) {
+                    switch (workflowRule.key()) {
+                        case 'x':
+                            if(workflowRule.operator() == '>') {
+                                if (rangeData.x_max() < workflowRule.value())
+                                    break;
+                                switch (workflowRule.output()) {
+                                    case "A":
+                                        result += (rangeData.x_max() - Math.max(0, workflowRule.value() + 1)) * (rangeData.m_max() - rangeData.m_min()) * (rangeData.a_max() - rangeData.a_min()) * (rangeData.s_max() - rangeData.s_min());
+                                        System.out.println("x > A" + result);
+                                        break;
+                                    case "R":
+                                        System.out.println("x > R");
+                                        break;
+                                    default:
+                                        rangeDataList.add(new RangeData(workflowRule.value() + 1, rangeData.x_max(), rangeData.m_min(), rangeData.m_max(), rangeData.a_min(), rangeData.a_max(), rangeData.s_min(), rangeData.s_max(), workflowRule.output()));
+                                        System.out.println("x > sub new x_max " + workflowRule.value() + 1 + " x_min " + rangeData.x_max());
+                                        break;
+                                }
+                                break;
+                            } else {
+                                if (rangeData.x_min() > workflowRule.value())
+                                    break;
+                                switch (workflowRule.output()) {
+                                    case "A":
+                                        result += Math.max(0, workflowRule.value() - 1 - rangeData.x_min()) * (rangeData.m_max() - rangeData.m_min()) * (rangeData.a_max() - rangeData.a_min()) * (rangeData.s_max() - rangeData.s_min());
+                                        System.out.println("x < A" + result);
+                                        break;
+                                    case "R":
+                                        System.out.println("x < R");
+                                        break;
+                                    default:
+                                        rangeDataList.add(new RangeData(rangeData.x_min(), workflowRule.value() - 1, rangeData.m_min(), rangeData.m_max(), rangeData.a_min(), rangeData.a_max(), rangeData.s_min(), rangeData.s_max(), workflowRule.output()));
+                                        break;
+                                }
+                                break;
+                            }
+                        case 'm':
+                            if(workflowRule.operator() == '>') {
+                                if (rangeData.m_max() < workflowRule.value())
+                                    break;
+                                switch (workflowRule.output()) {
+                                    case "A":
+                                        result += (rangeData.x_max() - rangeData.x_min()) * (rangeData.m_max() - Math.max(0, workflowRule.value() + 1)) * (rangeData.a_max() - rangeData.a_min()) * (rangeData.s_max() - rangeData.s_min());
+                                        System.out.println("m > A" + result);
+                                        break;
+                                    case "R":
+                                        System.out.println("m > R");
+                                        break;
+                                    default:
+                                        rangeDataList.add(new RangeData(rangeData.x_min(), rangeData.x_max(), workflowRule.value() + 1, rangeData.m_max(), rangeData.a_min(), rangeData.a_max(), rangeData.s_min(), rangeData.s_max(), workflowRule.output()));
+                                        System.out.println("m > sub new m_max " + (workflowRule.value() + 1) + " m_min " + rangeData.m_max());
+                                        break;
+                                }
+                                break;
+                            } else {
+                                if (rangeData.m_min() > workflowRule.value())
+                                    break;
+                                switch (workflowRule.output()) {
+                                    case "A":
+                                        result += (rangeData.x_max() - rangeData.x_min()) * Math.max(0, workflowRule.value() - 1 - rangeData.m_min()) * (rangeData.a_max() - rangeData.a_min()) * (rangeData.s_max() - rangeData.s_min());
+                                        System.out.println("m < A" + result);
+                                        break;
+                                    case "R":
+                                        System.out.println("m < R");
+                                        break;
+                                    default:
+                                        rangeDataList.add(new RangeData(rangeData.x_min(), rangeData.x_max(), rangeData.m_min(), workflowRule.value() - 1, rangeData.a_min(), rangeData.a_max(), rangeData.s_min(), rangeData.s_max(), workflowRule.output()));
+                                        System.out.println("m < sub new m_min " + rangeData.m_min() + " m_max " + (workflowRule.value() - 1));
+                                        break;
+                                }
+                                break;
+                            }
+                        case 'a':
+                            if(workflowRule.operator() == '>') {
+                                if (rangeData.a_max() < workflowRule.value())
+                                    break;
+                                switch (workflowRule.output()) {
+                                    case "A":
+                                        result += (rangeData.x_max() - rangeData.x_min()) * (rangeData.m_max() - rangeData.m_min()) * (rangeData.a_max() - Math.max(0, workflowRule.value() + 1)) * (rangeData.s_max() - rangeData.s_min());
+                                        break;
+                                    case "R":
+                                        break;
+                                    default:
+                                        rangeDataList.add(new RangeData(rangeData.x_min(), rangeData.x_max(), rangeData.m_min(), rangeData.m_max(), workflowRule.value() + 1, rangeData.a_max(), rangeData.s_min(), rangeData.s_max(), workflowRule.output()));
+                                        break;
+                                }
+                                break;
+                            } else {
+                                if (rangeData.a_min() > workflowRule.value())
+                                    break;
+                                switch (workflowRule.output()) {
+                                    case "A":
+                                        result += (rangeData.x_max() - rangeData.x_min()) * (rangeData.m_max() - rangeData.m_min()) * Math.max(0, workflowRule.value() - 1 - rangeData.a_min()) * (rangeData.s_max() - rangeData.s_min());
+                                        break;
+                                    case "R":
+                                        break;
+                                    default:
+                                        rangeDataList.add(new RangeData(rangeData.x_min(), rangeData.x_max(), rangeData.m_min(), rangeData.m_max(), rangeData.a_min(), workflowRule.value() - 1, rangeData.s_min(), rangeData.s_max(), workflowRule.output()));
+                                        break;
+                                }
+                                break;
+                            }
+                        case 's':
+                            if(workflowRule.operator() == '>') {
+                                if (rangeData.s_max() < workflowRule.value())
+                                    break;
+                                switch (workflowRule.output()) {
+                                    case "A":
+                                        result += (rangeData.x_max() - rangeData.x_min()) * (rangeData.m_max() - rangeData.m_min()) * (rangeData.a_max() - rangeData.a_min()) * (rangeData.s_max() - Math.max(0, workflowRule.value() + 1));
+                                        break;
+                                    case "R":
+                                        break;
+                                    default:
+                                        rangeDataList.add(new RangeData(rangeData.x_min(), rangeData.x_max(), rangeData.m_min(), rangeData.m_max(), rangeData.a_min(), rangeData.a_max(), workflowRule.value() + 1, rangeData.s_max(), workflowRule.output()));
+                                        break;
+                                }
+                                break;
+                            } else {
+                                if (rangeData.s_min() > workflowRule.value())
+                                    break;
+                                switch (workflowRule.output()) {
+                                    case "A":
+                                        result += (rangeData.x_max() - rangeData.x_min()) * (rangeData.m_max() - rangeData.m_min()) * (rangeData.a_max() - rangeData.a_min()) * Math.max(0, workflowRule.value() - 1 - rangeData.s_min());
+                                        break;
+                                    case "R":
+                                        break;
+                                    default:
+                                        rangeDataList.add(new RangeData(rangeData.x_min(), rangeData.x_max(), rangeData.m_min(), rangeData.m_max(), rangeData.a_min(), rangeData.a_max(), rangeData.s_min(), workflowRule.value() - 1, workflowRule.output()));
+                                        break;
+                                }
+                                break;
+                            }
+                    }
                 }
+
             }
         }
+        System.out.println(result);
     }
 }
